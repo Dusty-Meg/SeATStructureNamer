@@ -34,7 +34,7 @@ namespace SeATStructureNamer
                 structureCount = dbContext.Structures.Count();
             }
 
-            for (int i = 0; i < structureCount; i = i + 1000)
+            for (int i = 0; i < structureCount; i = i + 100)
             {
                 CycleStructures(connectionString, user, esiLibrary, token, i);
             }
@@ -96,6 +96,8 @@ namespace SeATStructureNamer
                             {
                                 structure.FailedCount = structure.FailedCount + 1;
                             }
+
+                            System.Threading.Thread.Sleep(TimeSpan.FromSeconds(5));
                         }
                     }
                 }

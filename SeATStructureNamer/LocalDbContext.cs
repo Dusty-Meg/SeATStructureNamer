@@ -23,7 +23,8 @@ namespace SeATStructureNamer
                 optionsBuilder.UseMySql(ConnectionString
                     , builder =>
                     {
-                        builder.ServerVersion(new Version(10, 3, 13), ServerType.MariaDb);
+                        builder.ServerVersion(new Version(10, 3, 15), ServerType.MariaDb);
+                        builder.CommandTimeout(300);
                     });
             }
         }
