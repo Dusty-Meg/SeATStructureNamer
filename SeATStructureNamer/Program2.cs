@@ -31,23 +31,22 @@ namespace SeATStructureNamer
 
             using (LocalDbContext dbContext = new LocalDbContext(connectionString))
             {
-                structureCount = dbContext.Structures.Count();
+                structureCount = dbContext.Structures.Count(x => x.FailedCount < 6 || x.FailedCount == null);
             }
 
-            for (int i = 0; i < structureCount; i = i + 100)
+            for (int i = 0; i < structureCount; i = i + 10)
             {
-                CycleStructures(connectionString, user, esiLibrary, token, i);
+                CycleStructures(connectionString, user, esiLibrary, token);
             }
         }
 
-        private static void CycleStructures(string connectionString, CharacterInfo user, LatestEndpoints esiLibrary, SsoToken token, int skip)
+        private void CycleStructures(string connectionString, CharacterInfo user, LatestEndpoints esiLibrary, SsoToken token)
         {
             using (LocalDbContext dbContext = new LocalDbContext(connectionString))
             {
-                foreach (UniverseStructures structure in dbContext.Structures.Skip(skip))
+                foreach (UniverseStructures structure in dbContext.Structures.OrderBy(x => x.updated_at).Where(x => x.FailedCount < 6 || x.FailedCount == null).Take(10))
                 {
-                    if (structure.name == "Unknown Structure" &&
-                        (structure.FailedCount == null || structure.FailedCount < 6))
+                    if (structure.FailedCount == null || structure.FailedCount < 6)
                     {
                         try
                         {
@@ -91,10 +90,12 @@ namespace SeATStructureNamer
                             if (structure.FailedCount == null)
                             {
                                 structure.FailedCount = 1;
+                                structure.updated_at = DateTime.UtcNow;
                             }
                             else
                             {
                                 structure.FailedCount = structure.FailedCount + 1;
+                                structure.updated_at = DateTime.UtcNow;
                             }
 
                             System.Threading.Thread.Sleep(TimeSpan.FromSeconds(5));
