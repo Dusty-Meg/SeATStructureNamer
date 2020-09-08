@@ -5,21 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": ".NET Core Launch (console)",
-            "type": "coreclr",
+            "name": "Python: Current File",
+            "type": "python",
             "request": "launch",
-            "preLaunchTask": "build",
-            "program": "${workspaceFolder}/SeATStructureNamer/bin/Debug/netcoreapp2.2/SeATStructureNamer.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/SeATStructureNamer",
-            "console": "internalConsole",
-            "stopAtEntry": false
-        },
-        {
-            "name": ".NET Core Attach",
-            "type": "coreclr",
-            "request": "attach",
-            "processId": "${command:pickProcess}"
+            "program": "${file}",
+            "console": "integratedTerminal"
         }
     ]
 }
