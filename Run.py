@@ -42,4 +42,4 @@ for structure in structures:
         DAL.UpdateStructure(db_connection, structure[0], esi_model)
 
 print(f"Finished successfully at {str(datetime.utcnow())}")
-sys.exit(1)
+sys.exit(0)
