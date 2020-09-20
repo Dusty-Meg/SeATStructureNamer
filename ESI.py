@@ -52,9 +52,9 @@ def structure(character_token, structure_id, count=0):
         try:
             return response.json()
         except json.decoder.JSONDecodeError:
-            return refresh_token(character_token, count + 1)
+            return structure(character_token, structure_id, count + 1)
     elif response.status_code == 502 and count < 5:
-        return refresh_token(character_token, count + 1)
+        return structure(character_token, structure_id, count + 1)
     elif response.status_code == 401 or response.status_code == 403:
         time.sleep(60)
         return None
