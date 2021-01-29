@@ -8,13 +8,8 @@ import ESI
 def check_token(character_token):
     now_plus_1 = datetime.utcnow() + timedelta(minutes=1)
 
-    if character_token[3] < now_plus_1:
-        result = ESI.refresh_token(character_token)
-
-        character_token[1] = result["access_token"]
-        character_token[2] = result["refresh_token"]
-        character_token[3] = (
-            datetime.utcnow() + timedelta(seconds=int(result["expires_in"])))
+    if character_token['expires_on'] < now_plus_1:
+        character_token = DAL.character_token(db_connection)
 
     return character_token
 

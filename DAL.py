@@ -19,24 +19,21 @@ def db_connect():
 
 
 def character_token(db_connection):
-    cursor = db_connection.cursor()
+    cursor = db_connection.cursor(dictionary=True)
 
     cursor.execute(
-        "SELECT "
-        "user.character_id, refreshtoken.token, "
-        "refreshtoken.refresh_token, refreshtoken.expires_on "
-        "FROM character_infos AS user "
-        "INNER JOIN "
-        "refresh_tokens AS refreshtoken "
-        "ON user.character_id = refreshtoken.character_id "
-        "WHERE refreshtoken.deleted_at IS NULL "
-        "AND user.corporation_id = %s "
-        "ORDER BY refreshtoken.expires_on DESC "
-        "LIMIT 1 ",
+        " SELECT refresh_tokens.token, refresh_tokens.expires_on "
+        " FROM refresh_tokens "
+        " LEFT JOIN character_affiliations ON refresh_tokens.character_id = character_affiliations.character_id "
+        " WHERE refresh_tokens.deleted_at IS NULL "
+        " AND TIMESTAMPDIFF(MINUTE, refresh_tokens.expires_on, UTC_TIMESTAMP()) BETWEEN -20 AND -10 "
+        " AND character_affiliations.corporation_id = %s "
+        " ORDER BY refresh_tokens.expires_on DESC "
+        " LIMIT 1 ",
         (os.environ['CORPORATION_ID'], )
     )
 
-    return list(cursor.fetchone())
+    return cursor.fetchone()
 
 
 def all_structures(db_connection):

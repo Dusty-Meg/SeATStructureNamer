@@ -14,16 +14,27 @@
 		"python.linting.pylintPath": "/usr/local/bin/pylint"
 	},
 
+	"containerEnv": {
+		"DB_HOST": "192.168.65.2",
+		"DB_USER": "seat",
+		"DB_PASSWORD": "srgHN9uefEXXbucH",
+		"DB_DATABASE": "seat",
+		"DB_PORT":"3306",
+		"CORPORATION_ID": "98127387",
+		"USER_AGENT": "SeATStructureNamer Slack: Dusty Meg"
+	},
+
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
-		"ms-python.python"
-	]
+		"ms-python.python",
+		"ms-python.vscode-pylance"
+	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "pip install -r requirements.txt",
+	"postCreateCommand": "pip install -r requirements.txt",
 
 	// Uncomment to connect as a non-root user. See https://aka.ms/vscode-remote/containers/non-root.
 	// "remoteUser": "vscode"
