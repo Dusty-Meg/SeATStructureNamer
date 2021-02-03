@@ -85,6 +85,7 @@ def UpdateStructure(db_connection, structure_id, esi_structure):
             esi_structure["position"]["x"],
             esi_structure["position"]["y"],
             esi_structure["position"]["z"],
+            structure_id
         )
     )
 

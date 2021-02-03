@@ -14,5 +14,4 @@ COPY Run.py /app
 COPY DAL.py /app
 COPY ESI.py /app
 
-ENTRYPOINT ["python"]
-CMD ["Run.py"]
+CMD python -u Run.py
