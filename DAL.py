@@ -4,7 +4,7 @@ import sys
 import mariadb
 
 
-def db_connect():
+def db_connect(logging):
     try:
         return mariadb.connect(
             user=os.environ['DB_USER'],
@@ -14,7 +14,7 @@ def db_connect():
             database=os.environ['DB_DATABASE']
             )
     except mariadb.Error as e:
-        print(f"Error connecting to MariaDB Platform: {e}")
+        logging.error(f"Error connecting to MariaDB Platform: {e}")
         sys.exit(1)
 
 
@@ -28,7 +28,7 @@ def character_token(db_connection):
         " WHERE refresh_tokens.deleted_at IS NULL "
         " AND TIMESTAMPDIFF(MINUTE, refresh_tokens.expires_on, UTC_TIMESTAMP()) BETWEEN -20 AND -10 "
         " AND character_affiliations.corporation_id = %s "
-        " ORDER BY refresh_tokens.expires_on DESC "
+        " ORDER BY character_affiliations.updated_at DESC, refresh_tokens.expires_on DESC "
         " LIMIT 1 ",
         (os.environ['CORPORATION_ID'], )
     )

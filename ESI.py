@@ -6,7 +6,7 @@ import json
 import requests
 
 
-def structure(character_token, structure_id, count=0):
+def structure(character_token, structure_id, logging, count=0):
     headers = {}
     headers['Content-Type'] = "application/json"
     headers['Accept'] = "application/json"
@@ -22,12 +22,12 @@ def structure(character_token, structure_id, count=0):
         try:
             return response.json()
         except json.decoder.JSONDecodeError:
-            return structure(character_token, structure_id, count + 1)
+            return structure(character_token, structure_id, logging, count + 1)
     elif response.status_code == 502 and count < 5:
-        return structure(character_token, structure_id, count + 1)
+        return structure(character_token, structure_id, logging, count + 1)
     elif response.status_code == 401 or response.status_code == 403:
         time.sleep(60)
         return None
     else:
-        print("Error fetching Structure" + str(response))
+        logging.error("Error fetching Structure" + str(response))
         sys.exit(1)
