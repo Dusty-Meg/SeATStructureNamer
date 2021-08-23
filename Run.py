@@ -13,11 +13,12 @@ def check_token(character_token, loop=1):
     now_plus_1 = datetime.utcnow() + timedelta(minutes=1)
 
     if character_token is None:
-        if loop == 6:
+        if loop == 20:
             logging.error("No character tokens available!")
             sys.exit(1)
         sleep(60 * loop)
         character_token = DAL.character_token(db_connection)
+        logging.error(f"Char token! {character_token}")
         return check_token(character_token, loop+1)
     else:
         if character_token['expires_on'] < now_plus_1:
