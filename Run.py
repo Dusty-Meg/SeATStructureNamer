@@ -42,12 +42,12 @@ logging.info(f"Got { len(structures) } structures to update!")
 
 for structure in structures:
     now = datetime.utcnow()
-    downtime_start = datetime.datetime(
+    downtime_start = datetime(
         now.year,
         now.month,
         now.day,
         10, 58, 00)
-    downtime_end = datetime.datetime(
+    downtime_end = datetime(
         now.year,
         now.month,
         now.day,
