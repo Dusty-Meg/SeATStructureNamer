@@ -42,7 +42,7 @@ def all_structures(db_connection):
     cursor.execute(
         "SELECT structure_id "
         "FROM universe_structures "
-        "WHERE FailedCount < 6 OR FailedCount IS NULL "
+        "WHERE FailedCount < 8 OR FailedCount IS NULL "
         "ORDER BY updated_at "
     )
 
@@ -75,7 +75,7 @@ def UpdateStructure(db_connection, structure_id, esi_structure):
         "y = %s, "
         "z = %s, "
         "updated_at = UTC_TIMESTAMP(), "
-        "FailedCount = null "
+        "FailedCount = 0 "
         "WHERE structure_id = %s",
         (
             esi_structure["name"],

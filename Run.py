@@ -9,7 +9,7 @@ import ESI
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
 
 
-def check_token(character_token, loop=1):
+def check_token(character_token, db_connection, loop=1):
     now_plus_1 = datetime.utcnow() + timedelta(minutes=1)
 
     if character_token is None:
@@ -19,11 +19,11 @@ def check_token(character_token, loop=1):
         sleep(60 * loop)
         character_token = DAL.character_token(db_connection)
         logging.error(f"Char token! {character_token}")
-        return check_token(character_token, loop+1)
+        return check_token(character_token, db_connection, loop+1)
     else:
         if character_token['expires_on'] < now_plus_1:
             character_token = DAL.character_token(db_connection)
-            return check_token(character_token)
+            return check_token(character_token, db_connection)
 
     return character_token
 
@@ -34,7 +34,7 @@ db_connection = DAL.db_connect(logging)
 
 character_token = DAL.character_token(db_connection)
 
-character_token = check_token(character_token)
+character_token = check_token(character_token, db_connection)
 
 structures = DAL.all_structures(db_connection)
 
@@ -42,7 +42,7 @@ logging.info(f"Got { len(structures) } structures to update!")
 
 for structure in structures:
     logging.info(f"Running structure: {structure[0]}")
-    character_token = check_token(character_token)
+    character_token = check_token(character_token, db_connection)
 
     esi_model = ESI.structure(
         character_token,
