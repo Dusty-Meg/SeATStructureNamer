@@ -41,6 +41,22 @@ structures = DAL.all_structures(db_connection)
 logging.info(f"Got { len(structures) } structures to update!")
 
 for structure in structures:
+    now = datetime.utcnow()
+    downtime_start = datetime.datetime(
+        now.year,
+        now.month,
+        now.day,
+        10, 58, 00)
+    downtime_end = datetime.datetime(
+        now.year,
+        now.month,
+        now.day,
+        11, 15, 00)
+
+    if now > downtime_start and now < downtime_end:
+        logging.info("Finishing as hit Downtime!")
+        sys.exit(0)
+
     logging.info(f"Running structure: {structure[0]}")
     character_token = check_token(character_token, db_connection)
 
