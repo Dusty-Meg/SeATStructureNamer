@@ -18,7 +18,6 @@ def check_token(character_token, db_connection, loop=1):
             sys.exit(1)
         sleep(60 * loop)
         character_token = DAL.character_token(db_connection, logging)
-        logging.error(f"Char token! {character_token}")
         return check_token(character_token, db_connection, loop+1)
     else:
         if character_token['expires_on'] < now_plus_1:
