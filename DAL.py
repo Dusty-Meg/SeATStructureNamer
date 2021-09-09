@@ -18,75 +18,75 @@ def db_connect(logging):
         sys.exit(1)
 
 
-def character_token(db_connection):
-    cursor = db_connection.cursor(dictionary=True)
+def character_token(db_connection, logging):
+    with db_connection.cursor(dictionary=True, buffered=False) as cursor:
+        cursor.execute(
+            " SELECT refresh_tokens.token, refresh_tokens.expires_on "
+            " FROM refresh_tokens "
+            " LEFT JOIN character_affiliations ON refresh_tokens.character_id = character_affiliations.character_id "
+            " WHERE refresh_tokens.deleted_at IS NULL "
+            " AND TIMESTAMPDIFF(MINUTE, refresh_tokens.expires_on, UTC_TIMESTAMP()) BETWEEN -20 AND -3 "
+            " AND character_affiliations.corporation_id = %s "
+            " ORDER BY character_affiliations.updated_at DESC, refresh_tokens.expires_on DESC "
+            " LIMIT 1 ",
+            (os.environ['CORPORATION_ID'], )
+        )
 
-    cursor.execute(
-        " SELECT refresh_tokens.token, refresh_tokens.expires_on "
-        " FROM refresh_tokens "
-        " LEFT JOIN character_affiliations ON refresh_tokens.character_id = character_affiliations.character_id "
-        " WHERE refresh_tokens.deleted_at IS NULL "
-        " AND TIMESTAMPDIFF(MINUTE, refresh_tokens.expires_on, UTC_TIMESTAMP()) BETWEEN -20 AND -10 "
-        " AND character_affiliations.corporation_id = %s "
-        " ORDER BY character_affiliations.updated_at DESC, refresh_tokens.expires_on DESC "
-        " LIMIT 1 ",
-        (os.environ['CORPORATION_ID'], )
-    )
+        results = cursor.fetchone()
+        logging.error(results)
+        logging.error(cursor.statement)
 
-    return cursor.fetchone()
+    return results
 
 
 def all_structures(db_connection):
-    cursor = db_connection.cursor()
+    with db_connection.cursor(dictionary=True, buffered=False) as cursor:
+        cursor.execute(
+            "SELECT structure_id "
+            "FROM universe_structures "
+            "WHERE FailedCount < 6 OR FailedCount IS NULL "
+            "ORDER BY updated_at "
+        )
 
-    cursor.execute(
-        "SELECT structure_id "
-        "FROM universe_structures "
-        "WHERE FailedCount < 8 OR FailedCount IS NULL "
-        "ORDER BY updated_at "
-    )
-
-    return cursor.fetchall()
+        return cursor.fetchall()
 
 
 def FailStructure(db_connection, structure_id):
-    cursor = db_connection.cursor()
+    with db_connection.cursor(dictionary=True, buffered=False) as cursor:
+        cursor.execute(
+            "UPDATE universe_structures "
+            "SET FailedCount = COALESCE(FailedCount, 0) + 1 "
+            "WHERE structure_id = %s",
+            (structure_id, )
+        )
 
-    cursor.execute(
-        "UPDATE universe_structures "
-        "SET FailedCount = COALESCE(FailedCount, 0) + 1 "
-        "WHERE structure_id = %s",
-        (structure_id, )
-    )
-
-    db_connection.commit()
+        db_connection.commit()
 
 
 def UpdateStructure(db_connection, structure_id, esi_structure):
-    cursor = db_connection.cursor()
-
-    cursor.execute(
-        "UPDATE universe_structures "
-        "SET name = %s, "
-        "owner_id = %s, "
-        "solar_system_id = %s, "
-        "type_id = %s, "
-        "x = %s, "
-        "y = %s, "
-        "z = %s, "
-        "updated_at = UTC_TIMESTAMP(), "
-        "FailedCount = 0 "
-        "WHERE structure_id = %s",
-        (
-            esi_structure["name"],
-            esi_structure["owner_id"],
-            esi_structure["solar_system_id"],
-            esi_structure["type_id"],
-            esi_structure["position"]["x"],
-            esi_structure["position"]["y"],
-            esi_structure["position"]["z"],
-            structure_id
+    with db_connection.cursor(dictionary=True, buffered=False) as cursor:
+        cursor.execute(
+            "UPDATE universe_structures "
+            "SET name = %s, "
+            "owner_id = %s, "
+            "solar_system_id = %s, "
+            "type_id = %s, "
+            "x = %s, "
+            "y = %s, "
+            "z = %s, "
+            "updated_at = UTC_TIMESTAMP(), "
+            "FailedCount = 0 "
+            "WHERE structure_id = %s",
+            (
+                esi_structure["name"],
+                esi_structure["owner_id"],
+                esi_structure["solar_system_id"],
+                esi_structure["type_id"],
+                esi_structure["position"]["x"],
+                esi_structure["position"]["y"],
+                esi_structure["position"]["z"],
+                structure_id
+            )
         )
-    )
 
-    db_connection.commit()
+        db_connection.commit()

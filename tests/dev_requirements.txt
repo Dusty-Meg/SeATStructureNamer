@@ -1,0 +1,13 @@
+# This is an implicit value, here for clarity
+--index-url https://pypi.python.org/simple/
+
+pytest>=6.2.4
+pytest-mysql>=2.1.0
+pytest-pythonpath>=0.7.3
+coverage>=5.5
+pytest-cov>=2.12.1
+pytest-flakes>=4.0.3
+pytest-pep8
+pytest-mock>=3.6.1
+mock>=4.0.3
+pytest-never-sleep>=0.0.2

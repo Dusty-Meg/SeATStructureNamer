@@ -17,22 +17,39 @@ def check_token(character_token, db_connection, loop=1):
             logging.error("No character tokens available!")
             sys.exit(1)
         sleep(60 * loop)
-        character_token = DAL.character_token(db_connection)
+        character_token = DAL.character_token(db_connection, logging)
         logging.error(f"Char token! {character_token}")
         return check_token(character_token, db_connection, loop+1)
     else:
         if character_token['expires_on'] < now_plus_1:
-            character_token = DAL.character_token(db_connection)
+            character_token = DAL.character_token(db_connection, logging)
             return check_token(character_token, db_connection)
 
     return character_token
+
+
+def check_structure(character_token, structure, logging, db_connection):
+    esi_model = ESI.structure(
+        character_token,
+        structure['structure_id'],
+        logging
+    )
+
+    if esi_model == "Token":
+        character_token = check_token(character_token, db_connection)
+        check_structure(character_token, structure, logging, db_connection)
+    elif esi_model is None:
+        DAL.FailStructure(db_connection, structure['structure_id'])
+    else:
+        DAL.UpdateStructure(db_connection, structure['structure_id'], esi_model)
 
 
 logging.info(f"Starting at {str(datetime.utcnow())}")
 
 db_connection = DAL.db_connect(logging)
 
-character_token = DAL.character_token(db_connection)
+character_token = DAL.character_token(db_connection, logging)
+logging.error(f"Char token! {character_token}")
 
 character_token = check_token(character_token, db_connection)
 
@@ -57,19 +74,8 @@ for structure in structures:
         logging.info("Finishing as hit Downtime!")
         sys.exit(0)
 
-    logging.info(f"Running structure: {structure[0]}")
-    character_token = check_token(character_token, db_connection)
-
-    esi_model = ESI.structure(
-        character_token,
-        structure[0],
-        logging
-    )
-
-    if esi_model is None:
-        DAL.FailStructure(db_connection, structure[0])
-    else:
-        DAL.UpdateStructure(db_connection, structure[0], esi_model)
+    logging.info(f"Running structure: {structure['structure_id']}")
+    check_structure(character_token, structure, logging, db_connection)
 
 logging.info(f"Finished successfully at {str(datetime.utcnow())}")
 sys.exit(0)
