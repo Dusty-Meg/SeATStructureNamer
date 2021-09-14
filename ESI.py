@@ -25,6 +25,9 @@ def structure(character_token, structure_id, logging, count=0):
             return structure(character_token, structure_id, logging, count + 1)
     elif response.status_code == 502 and count < 5:
         return structure(character_token, structure_id, logging, count + 1)
+    elif response.status_code == 504:
+        time.sleep(10)
+        return structure(character_token, structure_id, logging, count + 1)
     elif response.status_code == 401 or response.status_code == 403:
         reponse_json = response.json()
         logging.error(f"{str(response.status_code)} Structure Response:{str(reponse_json)}")

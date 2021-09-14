@@ -18,19 +18,26 @@ def db_connect(logging):
         sys.exit(1)
 
 
-def character_token(db_connection, logging):
+def character_token(db_connection, character_id, logging):
     with db_connection.cursor(dictionary=True, buffered=False) as cursor:
-        cursor.execute(
-            " SELECT refresh_tokens.token, refresh_tokens.expires_on "
-            " FROM refresh_tokens "
-            " LEFT JOIN character_affiliations ON refresh_tokens.character_id = character_affiliations.character_id "
-            " WHERE refresh_tokens.deleted_at IS NULL "
-            " AND TIMESTAMPDIFF(MINUTE, refresh_tokens.expires_on, UTC_TIMESTAMP()) BETWEEN -20 AND -3 "
-            " AND character_affiliations.corporation_id = %s "
-            " ORDER BY character_affiliations.updated_at DESC, refresh_tokens.expires_on DESC "
-            " LIMIT 1 ",
-            (os.environ['CORPORATION_ID'], )
-        )
+        sql = (" SELECT refresh_tokens.token, refresh_tokens.expires_on, refresh_tokens.character_id "
+               " FROM refresh_tokens "
+               " LEFT JOIN character_affiliations ON refresh_tokens.character_id = character_affiliations.character_id "
+               " WHERE refresh_tokens.deleted_at IS NULL "
+               " AND TIMESTAMPDIFF(MINUTE, refresh_tokens.expires_on, UTC_TIMESTAMP()) BETWEEN -20 AND -3 "
+               " AND character_affiliations.corporation_id = %s ")
+        data = (os.environ['CORPORATION_ID'], )
+
+        if character_id is not None:
+            sql = (f" {sql} "
+                   " AND refresh_tokens.character_id != %s ")
+            data += (character_id, )
+
+        sql = (f" {sql} "
+               " ORDER BY character_affiliations.updated_at DESC, refresh_tokens.expires_on DESC "
+               " LIMIT 1 ")
+
+        cursor.execute(sql, data)
 
         results = cursor.fetchone()
         logging.error(results)

@@ -17,11 +17,17 @@ def check_token(character_token, db_connection, loop=1):
             logging.error("No character tokens available!")
             sys.exit(1)
         sleep(60 * loop)
-        character_token = DAL.character_token(db_connection, logging)
+        character_token = DAL.character_token(
+            db_connection,
+            None,
+            logging)
         return check_token(character_token, db_connection, loop+1)
     else:
         if character_token['expires_on'] < now_plus_1:
-            character_token = DAL.character_token(db_connection, logging)
+            character_token = DAL.character_token(
+                db_connection,
+                character_token['character_id'],
+                logging)
             return check_token(character_token, db_connection)
 
     return character_token
@@ -35,6 +41,10 @@ def check_structure(character_token, structure, logging, db_connection):
     )
 
     if esi_model == "Token":
+        character_token = DAL.character_token(
+                db_connection,
+                character_token['character_id'],
+                logging)
         character_token = check_token(character_token, db_connection)
         check_structure(character_token, structure, logging, db_connection)
     elif esi_model is None:
@@ -47,7 +57,7 @@ logging.info(f"Starting at {str(datetime.utcnow())}")
 
 db_connection = DAL.db_connect(logging)
 
-character_token = DAL.character_token(db_connection, logging)
+character_token = DAL.character_token(db_connection, None, logging)
 logging.error(f"Char token! {character_token}")
 
 character_token = check_token(character_token, db_connection)
