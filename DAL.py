@@ -49,10 +49,11 @@ def character_token(db_connection, character_id, logging):
 def all_structures(db_connection):
     with db_connection.cursor(dictionary=True, buffered=False) as cursor:
         cursor.execute(
-            "SELECT structure_id "
-            "FROM universe_structures "
-            "WHERE FailedCount < 6 OR FailedCount IS NULL "
-            "ORDER BY updated_at "
+            " SELECT structure_id "
+            " FROM universe_structures "
+            " WHERE (FailedCount < 6 OR FailedCount IS NULL) "
+            " AND TIMESTAMPDIFF(HOUR, updated_at, UTC_TIMESTAMP()) > 24 "
+            " ORDER BY updated_at "
         )
 
         return cursor.fetchall()
