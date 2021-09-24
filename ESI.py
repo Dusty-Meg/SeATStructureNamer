@@ -25,6 +25,9 @@ def structure(character_token, structure_id, logging, count=0):
             return structure(character_token, structure_id, logging, count + 1)
     elif response.status_code == 502 and count < 5:
         return structure(character_token, structure_id, logging, count + 1)
+    elif response.status_code == 503 and count < 5:
+        time.sleep(10)
+        return structure(character_token, structure_id, logging, count + 1)
     elif response.status_code == 504:
         time.sleep(10)
         return structure(character_token, structure_id, logging, count + 1)
@@ -37,6 +40,9 @@ def structure(character_token, structure_id, logging, count=0):
             else:
                 time.sleep(60)
                 return None
+    elif response.status_code == 420:
+        time.sleep(120)
+        return structure(character_token, structure_id, logging, count + 1)
     else:
         logging.error("Error fetching Structure" + str(response))
         sys.exit(1)
